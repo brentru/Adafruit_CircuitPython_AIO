@@ -49,7 +49,6 @@ class Client(object):
         response = self.wifi.get(
             path,
             headers=self.headers)
-        print('DEBUG: ', response.json())
         return response.json()
         response.close()
     
@@ -92,7 +91,23 @@ class Client(object):
         path = self._compose_path("feeds/{0}/data{0}".format(feed_key, data_id))
         return self._delete(path)
 
-    # TODO: Groups
+    # Groups
+    def get_all_groups(self):
+        """
+        Returns information about the user's groups.
+        """
+        path = self._compose_path("groups")
+        return self._get(path)
+    
+    def create_new_group(self, group_name, group_description):
+        """
+        Creates a new Adafruit IO Group.
+        :param str group_name: Requested group name
+        :param str group_description: Brief summary about the group
+        """
+        path = self._compose_path("groups")
+        packet = {'name':group_name, 'description':group_description}
+        return self._post(path, packet)
 
     # Feeds
     def get_feed(self, key):
