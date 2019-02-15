@@ -48,9 +48,11 @@ class Client(object):
         response = self.wifi.get(
             path,
             headers=self.headers)
+        print('DEBUG: ', response.json())
         return response.json()
         response.close()
 
+    # Data 
     def send(self, feed, data, lat=None, lon=None, ele=None, created_at=None):
         """
         Sends value data to Adafruit IO on specified feed.
@@ -66,9 +68,29 @@ class Client(object):
         self._post(path, packet)
 
     def receive(self, feed):
-        """Return the most recent value for the specified feed.
+        """
+        Return the most recent value for the specified feed.
         :param string feed: Name/Key/ID of Adafruit IO feed.
         """
         path = self._compose_path("feeds/{0}/data/last".format(feed))
         return self._get(path)
-        
+
+    # TODO: Groups
+
+    # Feeds
+    def get_feed(self, key):
+        """
+        Returns feed based on the feed key.
+        :param str key: Specified feed
+        """
+        path = self._compose_path("feeds/{0}".format(key))
+        return self._get(path)
+
+    def get_all_feeds(self):
+        """
+        Returns information about the user's feeds. The response includes
+        the latest value of each feed, and other metadata about each feed.
+        """
+        path = self._compose_path("feeds")
+        return self._get(path)
+
