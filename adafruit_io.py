@@ -23,24 +23,30 @@ class Client(object):
         print('DEBUG: WIFI Manager: ', self.wifi)
         self.headers = {bytes("X-AIO-KEY","utf-8"):bytes(self.key,"utf-8")}
 
-    # TODO: Add Method to construct paths
-
     # TODO: Add Error Handling
 
-    # TODO: Add receive() method
+    def _compose_path(self, path):
+      return self.url+self.username+path
+    
+    def _create_data(self, data, latitude, longitude, elevation, timestamp):
+      return {'value':data, 'lat':latitude, 'lon':longitude,
+                'ele':elevation, 'created_at':timestamp}
 
-
-    def send(self, data, feed):
+    def send(self, feed, data, lat=None, lon=None, ele=None, created_at=None):
         """
-        Sends data to Adafruit IO on specified feed.
+        Sends value data to Adafruit IO on specified feed.
         :param data: Data to send to Adafruit IO
         :param feed: Specified Adafruit IO Feed
+        :param int lat: Optional latitude
+        :param int lon: Optional longitude
+        :param int ele: Optional elevation
+        :param string created_at: Optional date/time string
         """
-        payload = {'value':data}
-        path = self.url+self.username+"/feeds/"+feed+"/data"
+        path = self._compose_path("/feeds/{0}/data".format(feed))
+        packet = self._create_data(data, lat, lon, ele, created_at)
         response = self.wifi.post(
             path,
-            json=payload,
+            json = packet,
             headers=self.headers)
         #print(response.json())
         response.close()
