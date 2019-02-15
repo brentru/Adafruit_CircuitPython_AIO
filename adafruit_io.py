@@ -32,6 +32,7 @@ class Client(object):
       return {'value':data, 'lat':latitude, 'lon':longitude,
                 'ele':elevation, 'created_at':timestamp}
 
+    # WiFiManager
     def _post(self, path, packet):
         """
         Send data to Adafruit IO.
@@ -51,9 +52,16 @@ class Client(object):
         print('DEBUG: ', response.json())
         return response.json()
         response.close()
+    
+    def _delete(self, path):
+        response = self.wifi.delete(
+            path,
+            headers=self.headers)
+        return response.json()
+        response.close()
 
     # Data 
-    def send(self, feed, data, lat=None, lon=None, ele=None, created_at=None):
+    def send_data(self, feed, data, lat=None, lon=None, ele=None, created_at=None):
         """
         Sends value data to Adafruit IO on specified feed.
         :param data: Data to send to Adafruit IO
@@ -67,13 +75,22 @@ class Client(object):
         packet = self._create_data(data, lat, lon, ele, created_at)
         self._post(path, packet)
 
-    def receive(self, feed):
+    def receive_data(self, feed):
         """
         Return the most recent value for the specified feed.
         :param string feed: Name/Key/ID of Adafruit IO feed.
         """
         path = self._compose_path("feeds/{0}/data/last".format(feed))
         return self._get(path)
+
+    def delete_data(self, feed_key, data_id):
+        """
+        Delete an existing Data point from a feed.
+        :param string feed: Feed Key
+        :param string data_id: Data point to delete
+        """
+        path = self._compose_path("feeds/{0}/data{0}".format(feed_key, data_id))
+        return self._delete(path)
 
     # TODO: Groups
 
