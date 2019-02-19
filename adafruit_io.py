@@ -68,11 +68,20 @@ class Client(object):
                                 {bytes("X-AIO-KEY","utf-8"):bytes(self.key,"utf-8")}]
 
     def _compose_path(self, path):
-      return "{0}/{1}/{2}/{3}".format(self.url, self.api_version, self.username, path)
+        return "{0}/{1}/{2}/{3}".format(self.url, self.api_version, self.username, path)
     
     def _create_data(self, data, latitude, longitude, elevation, timestamp):
-      return {'value':data, 'lat':latitude, 'lon':longitude,
-                'ele':elevation, 'created_at':timestamp}
+        return {'value':data, 'lat':latitude, 'lon':longitude,
+                    'ele':elevation, 'created_at':timestamp}
+
+    def _handle_error(self, response):
+        if response.status_code == 429:
+            raise TypeError("Throttling Error")
+        elif response.status_code == 400:
+            raise TypeError(response)
+        elif response.status_code >= 400:
+            raise TypeError(response)
+        # no error? do nothing
 
     # HTTP Requests
     def _post(self, path, packet):
@@ -85,6 +94,7 @@ class Client(object):
             path,
             json = packet,
             headers = self.http_headers[0])
+        self._handle_error(response)
         return response.json()
         response.close()
 
@@ -96,6 +106,7 @@ class Client(object):
         response = self.wifi.get(
             path,
             headers=self.http_headers[1])
+        self._handle_error(response)
         return response.json()
         response.close()
     
@@ -108,6 +119,7 @@ class Client(object):
         response = self.wifi.delete(
             path,
             headers = self.http_headers[0])
+        self._handle_error(response)
         return response.json()
         response.close()
 
