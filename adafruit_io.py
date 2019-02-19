@@ -46,6 +46,26 @@ Implementation Notes
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Adafruit_IO.git"
 
+
+class AdafruitIO_Error(Exception):
+    """Base class for Adafruit IO errors"""
+    pass
+
+class AdafruitIO_ThrottleError(AdafruitIO_Error):
+    # handle IO throttling errors
+    # reduce rate of requests
+    def __init__(self):
+        super(AdafruitIO_ThrottleError, self).__init__("Number of Adafruit IO Requests exceeded. \
+                                                            Please try again in 30 seconds..")
+
+class AdafruitIO_RequestError(Exception):
+    def __init__(self, response):
+        print(response.json())
+        # parse out the error
+        response_content = response.json()
+        error = response_content['error']
+        super(AdafruitIO_RequestError, self).__init__("Adafruit IO Error {0}: {1}".format(response.status_code, error))
+
 class Client(object):
     def __init__(self, username, key, wifi_manager, api_version='v2'):
         """
@@ -76,11 +96,11 @@ class Client(object):
 
     def _handle_error(self, response):
         if response.status_code == 429:
-            raise TypeError("Throttling Error")
+            raise AdafruitIO_ThrottleError
         elif response.status_code == 400:
-            raise TypeError(response.json())
+            raise AdafruitIO_RequestError(response)
         elif response.status_code >= 400:
-            raise TypeError(response.json())
+            raise AdafruitIO_RequestError(response)
         # no error? do nothing
 
     # HTTP Requests
