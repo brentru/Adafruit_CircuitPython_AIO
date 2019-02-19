@@ -59,8 +59,10 @@ class Client(object):
         self.url = 'https://io.adafruit.com/api'
         self.username = username
         self.key = key
-        self.wifi = wifi_manager
-        print('DEBUG: WIFI Manager: ', self.wifi)
+        if wifi_manager:
+            self.wifi = wifi_manager
+        else:
+            raise TypeError("This library requires a WiFiManager object.")
         self.headers = {bytes("X-AIO-KEY","utf-8"):bytes(self.key,"utf-8")}
 
     # TODO: Add Error Handling
@@ -72,10 +74,10 @@ class Client(object):
       return {'value':data, 'lat':latitude, 'lon':longitude,
                 'ele':elevation, 'created_at':timestamp}
 
-    # WiFiManager
+    # HTTP Requests
     def _post(self, path, packet):
         """
-        Send data to Adafruit IO.
+        Send data to Adafruit IO
         :param str path: Composed URL
         :param json packet: JSON data to send to Adafruit IO
         """
@@ -86,6 +88,10 @@ class Client(object):
         response.close()
 
     def _get(self, path):
+        """
+        Get data from Adafruit IO
+        :param str path: Composed URL
+        """
         response = self.wifi.get(
             path,
             headers=self.headers)
@@ -93,6 +99,11 @@ class Client(object):
         response.close()
     
     def _delete(self, path):
+        """
+        Delete data from Adafruit IO.
+        :param str path: Composed URL
+        :param json packet: JSON data to send to Adafruit IO
+        """
         response = self.wifi.delete(
             path,
             headers=self.headers)
@@ -148,11 +159,6 @@ class Client(object):
         path = self._compose_path("groups")
         packet = {'name':group_name, 'description':group_description}
         return self._post(path, packet)
-    
-    # TODO: Delete Group
-
-    # https://io.adafruit.com/api/v2/{username}/groups/{group_key}/remove
-    def remove_feed_from_group(feed_key)
 
     # Feeds
     def get_feed(self, key):
@@ -170,3 +176,11 @@ class Client(object):
         """
         path = self._compose_path("feeds")
         return self._get(path)
+    
+    def delete_feed(self, feed):
+        """
+        Deletes an existing feed.
+        :param str feed: Valid feed key
+        """
+        path = self._compose_path("feeds/{0}".format(feed))
+        return self._delete(path) 
