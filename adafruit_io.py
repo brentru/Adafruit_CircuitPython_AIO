@@ -121,7 +121,7 @@ class Client(object):
             headers=self.http_headers[1])
         self._handle_error(response)
         return response.json()
-        response.close() # ask melissa about this..
+        response.close()
     
     def _delete(self, path):
         """
