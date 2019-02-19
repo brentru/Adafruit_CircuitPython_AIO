@@ -1,10 +1,50 @@
+# The MIT License (MIT)
+#
+# Copyright (c) 2019 Brent Rubell for Adafruit Industries
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
 """
-`adafruit_io.py`
+`adafruit_io`
 ================================================================================
-Adafruit IO Client Wrapper.
 
-Author(s): Brent Rubell for Adafruit Industries
+A CircuitPython/Python library for communicating with Adafruit IO
+
+
+* Author(s): Brent Rubell for Adafruit Industries
+
+Implementation Notes
+--------------------
+
+**Hardware:**
+
+**Software and Dependencies:**
+
+* Adafruit CircuitPython firmware for the supported boards:
+  https://github.com/adafruit/circuitpython/releases
+
+* Adafruit's ESP32SPI library: https://github.com/adafruit/Adafruit_CircuitPython_ESP32SPI
 """
+
+# imports
+
+__version__ = "0.0.0-auto.0"
+__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Adafruit_IO.git"
 
 class Client(object):
     def __init__(self, username, key, wifi_manager, api_version='v2'):
@@ -108,6 +148,11 @@ class Client(object):
         path = self._compose_path("groups")
         packet = {'name':group_name, 'description':group_description}
         return self._post(path, packet)
+    
+    # TODO: Delete Group
+
+    # https://io.adafruit.com/api/v2/{username}/groups/{group_key}/remove
+    def remove_feed_from_group(feed_key)
 
     # Feeds
     def get_feed(self, key):
@@ -125,4 +170,3 @@ class Client(object):
         """
         path = self._compose_path("feeds")
         return self._get(path)
-
