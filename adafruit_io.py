@@ -57,9 +57,13 @@ class AdafruitIO_RequestError(Exception):
     def __init__(self, response):
         response_content = response.json()
         error = response_content['error']
-        super(AdafruitIO_RequestError, self).__init__("Adafruit IO Error {0}: {1}".format(response.status_code, error))
+        super(AdafruitIO_RequestError, self).__init__("Adafruit IO Error {0}: {1}"
+                                                      .format(response.status_code, error))
 
-class Client(object):
+class Client():
+  """
+  TODO: Add Class DOCSTRING here!
+  """
     def __init__(self, username, key, wifi_manager, api_version='v2'):
         """
         Adafruit IO API REST Client
@@ -76,16 +80,17 @@ class Client(object):
             self.wifi = wifi_manager
         else:
             raise TypeError("This library requires a WiFiManager object.")
-        self.http_headers = [{bytes("X-AIO-KEY","utf-8"):bytes(self.key,"utf-8"),
-                                bytes("Content-Type","utf-8"):bytes('application/json',"utf-8")},
-                                {bytes("X-AIO-KEY","utf-8"):bytes(self.key,"utf-8")}]
+        self.http_headers = [{bytes("X-AIO-KEY", "utf-8"):bytes(self.key, "utf-8"),
+                              bytes("Content-Type", "utf-8"):bytes('application/json', "utf-8")},
+                             {bytes("X-AIO-KEY", "utf-8"):bytes(self.key, "utf-8")}]
 
+    # TODO: Convert these two methods to functions?
     def _compose_path(self, path):
         return "{0}/{1}/{2}/{3}".format(self.url, self.api_version, self.username, path)
-    
+
     def _create_data(self, data, latitude, longitude, elevation, timestamp):
         return {'value':data, 'lat':latitude, 'lon':longitude,
-                    'ele':elevation, 'created_at':timestamp}
+                'ele':elevation, 'created_at':timestamp}
 
     def _handle_error(self, response):
         if response.status_code == 429:
@@ -105,8 +110,8 @@ class Client(object):
         """
         response = self.wifi.post(
             path,
-            json = packet,
-            headers = self.http_headers[0])
+            json=packet,
+            headers=self.http_headers[0])
         self._handle_error(response)
         return response.json()
         response.close()
@@ -122,7 +127,7 @@ class Client(object):
         self._handle_error(response)
         return response.json()
         response.close()
-    
+
     def _delete(self, path):
         """
         Delete data from Adafruit IO.
@@ -130,12 +135,12 @@ class Client(object):
         """
         response = self.wifi.delete(
             path,
-            headers = self.http_headers[0])
+            headers=self.http_headers[0])
         self._handle_error(response)
         return response.json()
         response.close()
 
-    # Data 
+    # Data
     def send_data(self, feed_key, data, lat=None, lon=None, ele=None, created_at=None):
         """
         Sends value data to an Adafruit IO feed.
@@ -174,7 +179,7 @@ class Client(object):
         """
         path = self._compose_path("groups")
         return self._get(path)
-    
+
     def add_feed_to_group(self, group_key, feed_key):
         """
         Adds an existing feed to a group
@@ -233,10 +238,13 @@ class Client(object):
         return self._get(path)
 
     def create_new_feed(self, feed_key, feed_desc, feed_license):
+        """
+        TODO: Add Docstring
+        """
         path = self._compose_path("feeds")
         packet = packet = {'name':feed_key,
-                            'description':feed_desc,
-                            'license':feed_license}
+                           'description':feed_desc,
+                           'license':feed_license}
         return self._post(path, packet)
 
     def delete_feed(self, feed_key):
@@ -245,4 +253,4 @@ class Client(object):
         :param str feed_key: Valid feed key
         """
         path = self._compose_path("feeds/{0}".format(feed_key))
-        return self._delete(path) 
+        return self._delete(path)
