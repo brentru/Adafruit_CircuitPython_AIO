@@ -51,7 +51,7 @@ class Client(object):
         """
         Adafruit IO API REST Client
         :param str username: Adafruit IO Username
-        :param str key: Adafruit IO Key
+        :param str key: Adafruit IO Key, from `settings.py`
         :param wifi_manager: ESP32WiFiManager Object
         :param str api_version: Adafruit IO REST API Version
         """
@@ -63,7 +63,9 @@ class Client(object):
             self.wifi = wifi_manager
         else:
             raise TypeError("This library requires a WiFiManager object.")
-        self.headers = {bytes("X-AIO-KEY","utf-8"):bytes(self.key,"utf-8")}
+        self.http_headers = [{bytes("X-AIO-KEY","utf-8"):bytes(self.key,"utf-8"),
+                                bytes("Content-Type","utf-8"):bytes('application/json',"utf-8")},
+                                {bytes("X-AIO-KEY","utf-8"):bytes(self.key,"utf-8")}]
 
     def _compose_path(self, path):
       return "{0}/{1}/{2}/{3}".format(self.url, self.api_version, self.username, path)
@@ -82,8 +84,8 @@ class Client(object):
         response = self.wifi.post(
             path,
             json = packet,
-            headers = {bytes("X-AIO-KEY","utf-8"):bytes(self.key,"utf-8"),
-                        bytes("Content-Type","utf-8"):bytes('application/json',"utf-8")})
+            headers = self.http_headers[0])
+        return response.json()
         response.close()
 
     def _get(self, path):
@@ -93,7 +95,7 @@ class Client(object):
         """
         response = self.wifi.get(
             path,
-            headers={bytes("X-AIO-KEY","utf-8"):bytes(self.key,"utf-8")})
+            headers=self.http_headers[1])
         return response.json()
         response.close()
     
@@ -105,8 +107,7 @@ class Client(object):
         """
         response = self.wifi.delete(
             path,
-            headers = {bytes("X-AIO-KEY","utf-8"):bytes(self.key,"utf-8"),
-                        bytes("Content-Type","utf-8"):bytes('application/json',"utf-8")})
+            headers = {self.http_headers[0])
         return response.json()
         response.close()
 
