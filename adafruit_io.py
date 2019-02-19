@@ -47,16 +47,14 @@ __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Adafruit_IO.git"
 
 class AdafruitIO_ThrottleError(Exception):
-    # handle IO throttling errors
-    # reduce rate of requests
+    """Adafruit IO request error class for Throttle Errors"""
     def __init__(self):
-        super(AdafruitIO_ThrottleError, self).__init__("Number of Adafruit IO Requests exceeded. \
+        super(AdafruitIO_ThrottleError, self).__init__("Number of Adafruit IO Requests exceeded! \
                                                             Please try again in 30 seconds..")
 
 class AdafruitIO_RequestError(Exception):
+    """Base Adafruit IO request error class"""
     def __init__(self, response):
-        print(response.json())
-        # parse out the error
         response_content = response.json()
         error = response_content['error']
         super(AdafruitIO_RequestError, self).__init__("Adafruit IO Error {0}: {1}".format(response.status_code, error))
@@ -102,7 +100,7 @@ class Client(object):
     def _post(self, path, packet):
         """
         Send data to Adafruit IO
-        :param str path: Composed URL
+        :param str path: Formatted Adafruit IO URL
         :param json packet: JSON data to send to Adafruit IO
         """
         response = self.wifi.post(
@@ -116,20 +114,19 @@ class Client(object):
     def _get(self, path):
         """
         Get data from Adafruit IO
-        :param str path: Composed URL
+        :param str path: Formatted Adafruit IO URL
         """
         response = self.wifi.get(
             path,
             headers=self.http_headers[1])
         self._handle_error(response)
         return response.json()
-        response.close()
+        response.close() # ask melissa about this..
     
     def _delete(self, path):
         """
         Delete data from Adafruit IO.
-        :param str path: Composed URL
-        :param json packet: JSON data to send to Adafruit IO
+        :param str path: Formatted Adafruit IO URL
         """
         response = self.wifi.delete(
             path,
@@ -141,9 +138,9 @@ class Client(object):
     # Data 
     def send_data(self, feed_key, data, lat=None, lon=None, ele=None, created_at=None):
         """
-        Sends value data to Adafruit IO on specified feed.
-        :param data: Data to send to Adafruit IO
-        :param str feed_key: Specified Adafruit IO Feed
+        Sends value data to an Adafruit IO feed.
+        :param data: Data to send to an Adafruit IO feed
+        :param str feed_key: Specified Adafruit IO feed
         :param int lat: Optional latitude
         :param int lon: Optional longitude
         :param int ele: Optional elevation
@@ -167,7 +164,7 @@ class Client(object):
         :param string feed: Feed Key
         :param string data_id: Data point to delete
         """
-        path = self._compose_path("feeds/{0}/data{0}".format(feed_key, data_id))
+        path = self._compose_path("feeds/{0}/data/{0}".format(feed_key, data_id))
         return self._delete(path)
 
     # Groups
@@ -187,12 +184,11 @@ class Client(object):
         path = self._compose_path("groups/{0}/add".format(group_key))
         packet = {'feed_key':feed_key}
         return self._post(path, packet)
-        
 
     def create_new_group(self, group_key, group_description):
         """
         Creates a new Adafruit IO Group.
-        :param str group_key: Requested group name
+        :param str group_key: Adafruit IO Group Key
         :param str group_description: Brief summary about the group
         """
         path = self._compose_path("groups")
@@ -206,6 +202,14 @@ class Client(object):
         """
         path = self._compose_path("groups/{0}".format(group_key))
         return self._delete(path)
+
+    def get_group(self, group_key):
+        """
+        Returns Group based on Group Key
+        :param str group_key: Adafruit IO Group Key
+        """
+        path = self._compose_path("groups/{0}".format(group_key))
+        return self._get(path)
 
     # Feeds
     def get_feed(self, feed_key, detailed=False):
