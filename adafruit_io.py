@@ -107,7 +107,7 @@ class Client(object):
         """
         response = self.wifi.delete(
             path,
-            headers = {self.http_headers[0])
+            headers = self.http_headers[0])
         return response.json()
         response.close()
 
@@ -160,6 +160,14 @@ class Client(object):
         path = self._compose_path("groups")
         packet = {'name':group_name, 'description':group_description}
         return self._post(path, packet)
+
+    def delete_group(self, group_name):
+        """
+        Deletes an existing group.
+        :param str group_name: Adafruit IO Group Key
+        """
+        path = self._compose_path("groups/{0}".format(group_name))
+        return self._delete(path)
 
     # Feeds
     def get_feed(self, key):
