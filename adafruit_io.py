@@ -46,12 +46,7 @@ Implementation Notes
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Adafruit_IO.git"
 
-
-class AdafruitIO_Error(Exception):
-    """Base class for Adafruit IO errors"""
-    pass
-
-class AdafruitIO_ThrottleError(AdafruitIO_Error):
+class AdafruitIO_ThrottleError(Exception):
     # handle IO throttling errors
     # reduce rate of requests
     def __init__(self):
