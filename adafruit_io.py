@@ -78,9 +78,9 @@ class Client(object):
         if response.status_code == 429:
             raise TypeError("Throttling Error")
         elif response.status_code == 400:
-            raise TypeError(response)
+            raise TypeError(response.json())
         elif response.status_code >= 400:
-            raise TypeError(response)
+            raise TypeError(response.json())
         # no error? do nothing
 
     # HTTP Requests
@@ -197,7 +197,14 @@ class Client(object):
         """
         path = self._compose_path("feeds")
         return self._get(path)
-    
+
+    def create_new_feed(self, feed_name, feed_key, feed_desc, feed_license):
+        path = self._compose_path("feeds")
+        packet = packet = {'name':feed_name,
+                            'description':feed_desc,
+                            'license':feed_license}
+        return self._post(path, packet)
+
     def delete_feed(self, feed):
         """
         Deletes an existing feed.
