@@ -124,26 +124,26 @@ class Client(object):
         response.close()
 
     # Data 
-    def send_data(self, feed, data, lat=None, lon=None, ele=None, created_at=None):
+    def send_data(self, feed_key, data, lat=None, lon=None, ele=None, created_at=None):
         """
         Sends value data to Adafruit IO on specified feed.
         :param data: Data to send to Adafruit IO
-        :param feed: Specified Adafruit IO Feed
+        :param str feed_key: Specified Adafruit IO Feed
         :param int lat: Optional latitude
         :param int lon: Optional longitude
         :param int ele: Optional elevation
         :param string created_at: Optional date/time string
         """
-        path = self._compose_path("feeds/{0}/data".format(feed))
+        path = self._compose_path("feeds/{0}/data".format(feed_key))
         packet = self._create_data(data, lat, lon, ele, created_at)
         self._post(path, packet)
 
-    def receive_data(self, feed):
+    def receive_data(self, feed_key):
         """
         Return the most recent value for the specified feed.
-        :param string feed: Name/Key/ID of Adafruit IO feed.
+        :param string feed_key: Name/Key/ID of Adafruit IO feed.
         """
-        path = self._compose_path("feeds/{0}/data/last".format(feed))
+        path = self._compose_path("feeds/{0}/data/last".format(feed_key))
         return self._get(path)
 
     def delete_data(self, feed_key, data_id):
@@ -163,31 +163,46 @@ class Client(object):
         path = self._compose_path("groups")
         return self._get(path)
     
-    def create_new_group(self, group_name, group_description):
+    def add_feed_to_group(self, group_key, feed_key):
+        """
+        Adds an existing feed to a group
+        :param str group_key: Group
+        :param str feed_key: Feed to add to the group
+        """
+        path = self._compose_path("groups/{0}/add".format(group_key))
+        packet = {'feed_key':feed_key}
+        return self._post(path, packet)
+        
+
+    def create_new_group(self, group_key, group_description):
         """
         Creates a new Adafruit IO Group.
-        :param str group_name: Requested group name
+        :param str group_key: Requested group name
         :param str group_description: Brief summary about the group
         """
         path = self._compose_path("groups")
-        packet = {'name':group_name, 'description':group_description}
+        packet = {'name':group_key, 'description':group_description}
         return self._post(path, packet)
 
-    def delete_group(self, group_name):
+    def delete_group(self, group_key):
         """
         Deletes an existing group.
-        :param str group_name: Adafruit IO Group Key
+        :param str group_key: Adafruit IO Group Key
         """
-        path = self._compose_path("groups/{0}".format(group_name))
+        path = self._compose_path("groups/{0}".format(group_key))
         return self._delete(path)
 
     # Feeds
-    def get_feed(self, key):
+    def get_feed(self, feed_key, detailed=False):
         """
-        Returns feed based on the feed key.
-        :param str key: Specified feed
+        Returns feed record
+        :param str key: Feed Key
+        :param bool detailed: Returns a more detailed feed record
         """
-        path = self._compose_path("feeds/{0}".format(key))
+        if detailed:
+            path = self._compose_path("feeds/{0}/details".format(feed_key))
+        else:
+            path = self._compose_path("feeds/{0}".format(feed_key))
         return self._get(path)
 
     def get_all_feeds(self):
@@ -198,17 +213,17 @@ class Client(object):
         path = self._compose_path("feeds")
         return self._get(path)
 
-    def create_new_feed(self, feed_name, feed_key, feed_desc, feed_license):
+    def create_new_feed(self, feed_key, feed_desc, feed_license):
         path = self._compose_path("feeds")
-        packet = packet = {'name':feed_name,
+        packet = packet = {'name':feed_key,
                             'description':feed_desc,
                             'license':feed_license}
         return self._post(path, packet)
 
-    def delete_feed(self, feed):
+    def delete_feed(self, feed_key):
         """
         Deletes an existing feed.
-        :param str feed: Valid feed key
+        :param str feed_key: Valid feed key
         """
-        path = self._compose_path("feeds/{0}".format(feed))
+        path = self._compose_path("feeds/{0}".format(feed_key))
         return self._delete(path) 
