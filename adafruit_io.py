@@ -65,8 +65,6 @@ class Client(object):
             raise TypeError("This library requires a WiFiManager object.")
         self.headers = {bytes("X-AIO-KEY","utf-8"):bytes(self.key,"utf-8")}
 
-    # TODO: Add Error Handling
-
     def _compose_path(self, path):
       return "{0}/{1}/{2}/{3}".format(self.url, self.api_version, self.username, path)
     
@@ -84,7 +82,8 @@ class Client(object):
         response = self.wifi.post(
             path,
             json = packet,
-            headers = self.headers)
+            headers = {bytes("X-AIO-KEY","utf-8"):bytes(self.key,"utf-8"),
+                        bytes("Content-Type","utf-8"):bytes('application/json',"utf-8")})
         response.close()
 
     def _get(self, path):
@@ -94,7 +93,7 @@ class Client(object):
         """
         response = self.wifi.get(
             path,
-            headers=self.headers)
+            headers={bytes("X-AIO-KEY","utf-8"):bytes(self.key,"utf-8")})
         return response.json()
         response.close()
     
@@ -106,7 +105,8 @@ class Client(object):
         """
         response = self.wifi.delete(
             path,
-            headers=self.headers)
+            headers = {bytes("X-AIO-KEY","utf-8"):bytes(self.key,"utf-8"),
+                        bytes("Content-Type","utf-8"):bytes('application/json',"utf-8")})
         return response.json()
         response.close()
 
